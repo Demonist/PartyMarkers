@@ -167,15 +167,11 @@ function List:GetRow()
 end
 
 function List:RemoveRow(index)
-	if self.visibleRows == 1 and index == 1 then
-		self.rows[index].edit:SetText("");
-	else
-		for i=index+1,self.visibleRows do self.rows[i-1]:SetData(self.rows[i]:GetData()); end
-		self.rows[self.visibleRows]:Hide()
+	for i=index+1,self.visibleRows do self.rows[i-1]:SetData(self.rows[i]:GetData()); end
+	self.rows[self.visibleRows]:Hide()
 
-		self.visibleRows = self.visibleRows - 1
-		self:UpdateSize()
-	end
+	self.visibleRows = self.visibleRows - 1
+	self:UpdateSize()
 end
 
 function List:Up(index)
@@ -204,7 +200,6 @@ function List:SetData(data)
 	for i=2,self.visibleRows do self.rows[i]:Hide(); end
 	self.visibleRows = 0
 	for k,v in ipairs(data) do self:GetRow():SetData(v); end
-	if self.visibleRows == 0 then self.visibleRows = 1; end
 end
 
 function List:ClearFocus()

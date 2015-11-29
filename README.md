@@ -1,5 +1,5 @@
 #PartyMarkers
-This is a World Of Warcraft addon that helps to set markers on players and mobs in a raid.
+This is a World Of Warcraft addon that helps to set markers on players and mobs in the raid.
 
 
 #How does it works?!
@@ -10,8 +10,8 @@ Secondly, you may just click a name to set the marker.
 ![_image not found_](screenshots/settings.png)
 ![_image not found_](screenshots/workflow.png)
 
-#Known proglems
-1. Yet this only work in raids.
+#Known problems
+1. Yet this only work in  the raid.
 2. There is some bugs with scaling and moving.
 3. Yet there is not profiles.
 
