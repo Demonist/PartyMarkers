@@ -12,8 +12,7 @@ Secondly, you may just click a name to set the marker.
 
 #Known problems
 1. Yet this only work in  the raid.
-2. There is some bugs with scaling and moving.
-3. Yet there is not profiles.
+2. Yet there is not profiles.
 
 All this bugs will be fixed soon.
 

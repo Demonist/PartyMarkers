@@ -262,7 +262,7 @@ function List:Up(index)
 end
 
 function List:Down(index)
-	if index == #self.rows then return; end
+	if index >= self.visibleRows then return; end
 	local data = self.rows[index+1]:GetData()
 	self.rows[index+1]:SetData(self.rows[index]:GetData())
 	self.rows[index]:SetData(data)
@@ -418,6 +418,7 @@ local function CreateSettingsUi()
 	if not PartyMarkersStorage["settingsY"] then PartyMarkersStorage["settingsY"] = 0; end
 	if not PartyMarkersStorage["settingsWidth"] then PartyMarkersStorage["settingsWidth"] = 200; end
 	if not PartyMarkersStorage["settingsHeight"] then PartyMarkersStorage["settingsHeight"] = 300; end
+	if not PartyMarkersStorage["alpha"] then PartyMarkersStorage["alpha"] = 80; end
 
 	settingsFrame = CreateFrame("Frame", nil, UIParent)
 	settingsFrame:Hide()
@@ -488,6 +489,19 @@ local function CreateSettingsUi()
 	addButton:SetScript("OnClick", function(self, button) if button == "LeftButton" then list:GetRow(); end end)
 
 	--
+	local slider = CreateFrame("Slider", nil, settingsFrame, "OptionsSliderTemplate")
+	slider:Show()
+	slider:SetPoint("BOTTOMLEFT", 30, 5)
+	slider:SetPoint("RIGHT", -30, 0)
+	slider:SetHeight(16)
+	slider:SetOrientation("HORIZONTAL")
+	slider:SetMinMaxValues(40, 100)
+	slider:SetValueStep(1)
+	slider:SetScript("OnValueChanged", function(self, value) settingsFrame:SetAlpha(value/100); workflowFrame:SetAlpha(value/100); end)
+	slider:SetValue(PartyMarkersStorage["alpha"])
+	settingsFrame.slider = slider
+
+	--
 	local closeButton = CreateFrame("Button", nil, settingsFrame)
 	closeButton:Show()
 	closeButton:SetWidth(16)
@@ -534,7 +548,11 @@ local function CreateSettingsUi()
 end
 
 local function HeaderClicked()
-	if settingsFrame and settingsFrame:IsVisible() then settingsFrame:Hide(); end
+	if settingsFrame and settingsFrame:IsVisible() then
+		settingsFrame:Hide()
+		list.markers:Hide()
+		list.playersFrame:Hide()
+	end
 	if workflowFrame:IsVisible() then workflowFrame:Hide();
 	else workflowFrame:Show(); end
 end
@@ -559,6 +577,8 @@ local function CreateUi()
 	mainFrame:SetScript("OnMouseDown", function(self, button)
 		if button == "LeftButton" then
 			if IsShiftKeyDown() then
+				workflowFrame:SetPoint("TOPLEFT", mainFrame, "BOTTOMLEFT")
+				workflowFrame:SetPoint("RIGHT")
 				mainFrame:StartMoving()
 			else
 				HeaderClicked()
@@ -661,6 +681,7 @@ local function CreateUi()
 end
 
 mainFrame:RegisterEvent("PLAYER_LOGIN")
+mainFrame:RegisterEvent("PLAYER_LOGOUT")
 mainFrame:RegisterEvent("PARTY_CONVERTED_TO_RAID")
 mainFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 local function OnEvent(self, event, ...)
@@ -668,6 +689,8 @@ local function OnEvent(self, event, ...)
 		CreateUi()
 	elseif event == "PARTY_CONVERTED_TO_RAID" or event == "GROUP_ROSTER_UPDATE" and list then
 		list:UpdatePlayers()
+	elseif event == "PLAYER_LOGOUT" and settingsFrame then
+		PartyMarkersStorage["alpha"] = settingsFrame.slider:GetValue()
 	end
 end
 mainFrame:SetScript("OnEvent", OnEvent)
