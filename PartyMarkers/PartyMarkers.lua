@@ -11,6 +11,22 @@ for i=1,8 do
 	table.insert(icons, "Interface\\TARGETINGFRAME\\UI-RaidTargetingIcon_"..i)
 end
 
+local function ClassColor(className)
+	if className == "DEATHKNIGHT" then return {0.77, 0.12, 0.23}
+	elseif className == "DRUID" then return {1.00, 0.49, 0.0}
+	elseif className == "HUNTER" then return {0.67, 0.83, 0.45}
+	elseif className == "MAGE" then return {0.41, 0.80, 0.94}
+	elseif className == "MONK" then return {0.33, 0.54, 0.52}
+	elseif className == "PALADIN" then return {0.96, 0.55, 0.73}
+	elseif className == "PRIEST" then return {1.00, 1.00, 1.00}
+	elseif className == "ROGUE" then return {1.00, 0.96, 0.41}
+	elseif className == "SHAMAN" then return {0.0, 0.44, 0.87}
+	elseif className == "WARLOCK" then return {0.58, 0.51, 0.79}
+	elseif className == "WARRIOR" then return {0.78, 0.61, 0.43}
+	else return {0.5, 0.5, 0.5}
+	end
+end
+
 local List = {}
 function List:Create(parentFrame)
 	local list = {}
@@ -87,6 +103,7 @@ function List:GetRow()
 	down:SetPushedTexture("Interface\\Buttons\\Arrow-Down-Down")
 	down:SetScript("OnClick", function(self, button) if button == "LeftButton" then list:Down(self:GetParent().index); end end)
 
+	--
 	local comboBox = CreateFrame("Button", nil, row)
 	comboBox:Show()
 	comboBox:SetSize(row:GetHeight(), row:GetHeight())
@@ -102,8 +119,8 @@ function List:GetRow()
 		self.markers:SetSize(row:GetHeight() + 8, 8 * row:GetHeight() + 22)
 		self.markers:SetPoint("LEFT", comboBox)
 		self.markers:SetBackdrop(GameTooltip:GetBackdrop())
-		self.markers:SetBackdropColor(0.5, 0.5, 0.5, 1)
-		self.markers:SetBackdropBorderColor(0.8, 0.8, 0.8, 1)
+		self.markers:SetBackdropColor(0.3, 0.3, 0.3, 1)
+		self.markers:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
 		self.markers:EnableKeyboard(true)
 		for i=1,8 do
 			local button = CreateFrame("Button", nil, self.markers)
@@ -131,6 +148,7 @@ function List:GetRow()
 	comboBox:SetScript("OnClick", function(self, button) if button == "LeftButton" then list.markers:ToogleVisible(self:GetParent().index); end end)
 	row.comboBox = comboBox
 
+	--
 	local edit = CreateFrame("EditBox", nil, row)
 	edit:Show()
 	edit:SetAutoFocus(false)
@@ -152,12 +170,74 @@ function List:GetRow()
 	edit:SetScript("OnMouseDown", function(self, button)
 		if button == "LeftButton" then
 			self:SetFocus()
-		elseif button == "RightButton" then
+		elseif button == "MiddleButton" then
 			local text = UnitName("target")
 			if not text then text = ""; end
 			list.rows[self:GetParent().index]:SetText(text);
+		elseif button == "RightButton" then
+			list.playersFrame:Popup(self:GetParent().index)
 		end
 	end)
+
+	if not self.players then
+		self.players = {}
+		
+		self.playersFrame = CreateFrame("Frame", nil, mainFrame)
+		self.playersFrame:Hide()
+		self.playersFrame.index = 0
+		self.playersFrame.buttons = {}
+		self.playersFrame:SetPoint("LEFT", edit, "LEFT")
+		self.playersFrame:SetBackdrop(GameTooltip:GetBackdrop())
+		self.playersFrame:SetBackdropColor(0.3, 0.3, 0.3, 1)
+		self.playersFrame:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
+		self.playersFrame:EnableKeyboard(true)
+		self.playersFrame:SetScript("OnKeyDown", function(self, key) if GetBindingFromClick(key)=="TOGGLEGAMEMENU" then self:Hide(); end end)
+		self.playersFrame.Popup = function(self, index)
+			self.index = index
+			self:SetPoint("RIGHT", list.rows[index].edit)
+			self:SetPoint("TOP", list.rows[index].edit, "BOTTOM", 0, -10)
+
+			if #list.players == 0 then return; end
+
+			while #self.buttons < #list.players do
+				local button = CreateFrame("Button", nil, self)
+				button:SetPoint("LEFT")
+				button:SetPoint("RIGHT")
+				button:SetHeight(15)
+				if #self.buttons == 0 then button:SetPoint("TOP", self, "TOP", 0, -2);
+				else button:SetPoint("TOP", self.buttons[#self.buttons], "BOTTOM", 0, -2);
+				end
+				
+				button.text = button:CreateFontString(nil, "OVERLAY", "GameFontNormalLeft")
+				button.text:SetPoint("TOPLEFT", 5, -1)
+				button.text:SetPoint("BOTTOMRIGHT")
+				button.text:SetTextColor(1,1,1,1)
+				button.text:SetText("")
+
+				button.texture = button:CreateTexture()
+				button.texture:SetAllPoints()
+				button.texture:SetTexture(0.2, 0.2, 0.2, 1)
+				button:SetHighlightTexture(button.texture)
+
+				button:SetScript("OnClick", function(self, button)
+					if button == "LeftButton" then
+						list.rows[list.playersFrame.index].edit:SetText(self.text:GetText());
+						list.playersFrame:Hide();
+					end
+				end)
+				table.insert(self.buttons, button)
+			end
+			for i=1,#list.players do
+				self.buttons[i].text:SetText(list.players[i].name)
+				self.buttons[i].text:SetTextColor(list.players[i].color[1], list.players[i].color[2], list.players[i].color[3], 1)
+				self.buttons[i]:Show()
+			end
+			self:SetHeight(#list.players*15 + (#self.buttons-1)*2 + 4)
+			self:Show()
+		end
+		self:UpdatePlayers()
+	end
+
 	row.edit = edit
 
 	table.insert(self.rows, row)
@@ -206,6 +286,41 @@ function List:ClearFocus()
 	for i=1,self.visibleRows do self.rows[i].edit:ClearFocus(); end
 end
 
+function List:UpdatePlayers()
+	if self.players then
+		for i=1,#self.players do self.playersFrame.buttons[i]:Hide(); end
+		self.players = {}
+
+		if IsInRaid() then
+			for i=1,40 do
+				local name = UnitName("raid"..i)
+				if name then
+					local _, className = UnitClass("raid"..i)
+					table.insert(self.players, {name=name, class=className, color=ClassColor(className)});
+				end
+			end
+		elseif IsInGroup() then
+			for i=1,4 do
+				local name = UnitName("party"..i)
+				if name then
+					local _, className = UnitClass("party"..i)
+					table.insert(self.players, {name=name, class=className, color=ClassColor(className)});
+				end
+			end
+		end
+
+		local name = UnitName("player")
+		if name then
+			local _, className = UnitClass("player")
+			table.insert(self.players, {name=name, class=className, color=ClassColor(className)});
+		end
+
+		if #self.players > 1 then
+			table.sort(self.players, function(left, right) return string.lower(left.name) < string.lower(right.name); end)
+		end
+	end
+end
+
 -----------------------------------------------------------------------------------------------------------------------
 
 local Workflow = {}
@@ -245,10 +360,8 @@ function Workflow:GetButton()
 	button.texture:SetTexture(0.2, 0.2, 0.2, 1)
 	button:SetHighlightTexture(button.texture)
 
-
-
 	button.text = button:CreateFontString(nil, "OVERLAY", "GameFontNormalLeft")
-	button.text:SetPoint("TOPLEFT")
+	button.text:SetPoint("TOPLEFT", 5, -1)
 	button.text:SetPoint("BOTTOMRIGHT", -20, 0)
 	button.text:SetTextColor(1,1,1,1)
 
@@ -316,6 +429,7 @@ local function CreateSettingsUi()
 	settingsFrame:SetScript("OnMouseDown", function(self, button)
 		if button == "LeftButton" then settingsFrame:StartMoving(); end
 		if list.markers:IsVisible() then list.markers:Hide(); end
+		if list.playersFrame:IsVisible() then list.playersFrame:Hide(); end
 	end)
 	settingsFrame:SetScript("OnMouseUp", function(self, button)
 		if button == "LeftButton" then
@@ -547,13 +661,13 @@ local function CreateUi()
 end
 
 mainFrame:RegisterEvent("PLAYER_LOGIN")
-mainFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
-mainFrame:RegisterEvent("PARTY_MEMBER_DISABLE")
-mainFrame:RegisterEvent("PARTY_MEMBER_ENABLE")
+mainFrame:RegisterEvent("PARTY_CONVERTED_TO_RAID")
+mainFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 local function OnEvent(self, event, ...)
 	if event == "PLAYER_LOGIN" then
 		CreateUi()
+	elseif event == "PARTY_CONVERTED_TO_RAID" or event == "GROUP_ROSTER_UPDATE" and list then
+		list:UpdatePlayers()
 	end
 end
 mainFrame:SetScript("OnEvent", OnEvent)
-
