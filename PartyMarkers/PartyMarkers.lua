@@ -168,6 +168,7 @@ function List:GetRow()
 	edit:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
 	edit:SetTextInsets(5, 5, 0, 0)
 	edit:SetScript("OnMouseDown", function(self, button)
+		list.markers:Hide()
 		if button == "LeftButton" then
 			self:SetFocus()
 			list.playersFrame:Hide()
@@ -295,6 +296,7 @@ end
 
 function List:UpdatePlayers()
 	if self.players then
+		self.playersFrame:Hide()
 		for i = 1, math.min(#self.players,#self.playersFrame.buttons) do self.playersFrame.buttons[i]:Hide(); end
 		self.players = {}
 
@@ -522,6 +524,7 @@ local function CreateSettingsUi()
 		settingsFrame:Hide()
 		PartyMarkersStorage["data"] = list:GetData()
 		workflow:SetData(list:GetData())
+		if list.markers:IsVisible() then list.markers:Hide(); end
 		if list.playersFrame:IsVisible() then list.playersFrame:Hide(); end
 		if workflowFrame.wasVisible then workflowFrame:Show() end
 	end)
