@@ -170,6 +170,7 @@ function List:GetRow()
 	edit:SetScript("OnMouseDown", function(self, button)
 		if button == "LeftButton" then
 			self:SetFocus()
+			list.playersFrame:Hide()
 		elseif button == "MiddleButton" then
 			local text = UnitName("target")
 			if not text then text = ""; end
@@ -193,6 +194,11 @@ function List:GetRow()
 		self.playersFrame:EnableKeyboard(true)
 		self.playersFrame:SetScript("OnKeyDown", function(self, key) if GetBindingFromClick(key)=="TOGGLEGAMEMENU" then self:Hide(); end end)
 		self.playersFrame.Popup = function(self, index)
+			if self:IsVisible() and self.index == index then
+				self:Hide()
+				return
+			end
+
 			self.index = index
 			self:SetPoint("RIGHT", list.rows[index].edit)
 			self:SetPoint("TOP", list.rows[index].edit, "BOTTOM", 0, -10)
@@ -204,12 +210,12 @@ function List:GetRow()
 				button:SetPoint("LEFT")
 				button:SetPoint("RIGHT")
 				button:SetHeight(15)
-				if #self.buttons == 0 then button:SetPoint("TOP", self, "TOP", 0, -2);
+				if #self.buttons == 0 then button:SetPoint("TOP", self, "TOP", 0, -4);
 				else button:SetPoint("TOP", self.buttons[#self.buttons], "BOTTOM", 0, -2);
 				end
 				
 				button.text = button:CreateFontString(nil, "OVERLAY", "GameFontNormalLeft")
-				button.text:SetPoint("TOPLEFT", 5, -1)
+				button.text:SetPoint("TOPLEFT", 7, -1)
 				button.text:SetPoint("BOTTOMRIGHT")
 				button.text:SetTextColor(1,1,1,1)
 				button.text:SetText("")
@@ -221,10 +227,11 @@ function List:GetRow()
 
 				button:SetScript("OnClick", function(self, button)
 					if button == "LeftButton" then
-						list.rows[list.playersFrame.index].edit:SetText(self.text:GetText());
-						list.playersFrame:Hide();
+						list.rows[list.playersFrame.index].edit:SetText(self.text:GetText())
 					end
+					list.playersFrame:Hide()
 				end)
+				button:SetScript("OnMouseDown", function(self, button) if button == "RightButton" then list.playersFrame:Hide(); end end)
 				table.insert(self.buttons, button)
 			end
 			for i=1,#list.players do
@@ -232,7 +239,7 @@ function List:GetRow()
 				self.buttons[i].text:SetTextColor(list.players[i].color[1], list.players[i].color[2], list.players[i].color[3], 1)
 				self.buttons[i]:Show()
 			end
-			self:SetHeight(#list.players*15 + (#self.buttons-1)*2 + 4)
+			self:SetHeight(#list.players*15 + (#self.buttons-1)*2 + 8)
 			self:Show()
 		end
 		self:UpdatePlayers()
@@ -288,7 +295,7 @@ end
 
 function List:UpdatePlayers()
 	if self.players then
-		for i=1,#self.players do self.playersFrame.buttons[i]:Hide(); end
+		for i = 1, math.min(#self.players,#self.playersFrame.buttons) do self.playersFrame.buttons[i]:Hide(); end
 		self.players = {}
 
 		if IsInRaid() then
@@ -309,10 +316,12 @@ function List:UpdatePlayers()
 			end
 		end
 
-		local name = UnitName("player")
-		if name then
-			local _, className = UnitClass("player")
-			table.insert(self.players, {name=name, class=className, color=ClassColor(className)});
+		if #self.players == 0 then
+			local name = UnitName("player")
+			if name then
+				local _, className = UnitClass("player")
+				table.insert(self.players, {name=name, class=className, color=ClassColor(className)});
+			end
 		end
 
 		if #self.players > 1 then
@@ -513,6 +522,7 @@ local function CreateSettingsUi()
 		settingsFrame:Hide()
 		PartyMarkersStorage["data"] = list:GetData()
 		workflow:SetData(list:GetData())
+		if list.playersFrame:IsVisible() then list.playersFrame:Hide(); end
 		if workflowFrame.wasVisible then workflowFrame:Show() end
 	end)
 
