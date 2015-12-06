@@ -34,7 +34,7 @@ end
 
 if locale == "esES" then
 	L["settings"] = "Ajustes"
-	["profile"] = "Perfil"
+	L["profile"] = "Perfil"
 	L["commonProfile"] = "[Común]"
 	L["load"] = "Carga"
 	L["save"] = "Ahorrar"
@@ -45,7 +45,7 @@ end
 
 if locale == "frFR" then
 	L["settings"] = "Paramètres"
-	["profile"] = "Profil"
+	L["profile"] = "Profil"
 	L["commonProfile"] = "[Commun]"
 	L["load"] = "Charge"
 	L["save"] = "Sauvegarder"
@@ -56,7 +56,7 @@ end
 
 if locale == "itIT" then
 	L["settings"] = "Impostazioni"
-	["profile"] = "Profilo"
+	L["profile"] = "Profilo"
 	L["commonProfile"] = "[Comune]"
 	L["load"] = "Caricare"
 	L["save"] = "Salvare"
@@ -67,7 +67,7 @@ end
 
 if locale == "ptBR" then
 	L["settings"] = "Configurações"
-	["profile"] = "Perfil"
+	L["profile"] = "Perfil"
 	L["commonProfile"] = "[Comum]"
 	L["load"] = "Carregar"
 	L["save"] = "Guardar"
@@ -78,7 +78,7 @@ end
 
 if locale == "zhCN" then
 	L["settings"] = "设置"
-	["profile"] = "简介"
+	L["profile"] = "简介"
 	L["commonProfile"] = "[共同]"
 	L["load"] = "加载"
 	L["save"] = "保存"
@@ -89,7 +89,7 @@ end
 
 if locale == "zhTW" then
 	L["settings"] = "設置"
-	["profile"] = "簡介"
+	L["profile"] = "簡介"
 	L["commonProfile"] = "[共同]"
 	L["load"] = "加載"
 	L["save"] = "保存"
@@ -100,7 +100,7 @@ end
 
 if locale == "koKR" then
 	L["settings"] = "설정"
-	["profile"] = "윤곽"
+	L["profile"] = "윤곽"
 	L["commonProfile"] = "[공유지]"
 	L["load"] = "하중"
 	L["save"] = "구하다"

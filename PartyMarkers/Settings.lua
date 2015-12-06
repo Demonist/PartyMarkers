@@ -73,6 +73,7 @@ function PC.Settings:ProfileMenu_Remove()
 	if PartyMarkersStorage["data2"][text] then
 		if text == L["commonProfile"] then
 			self.list:SetData({})
+			PartyMarkersStorage["data2"][L["commonProfile"]] = {}
 		else
 			PartyMarkersStorage["data2"][text] = nil
 			self:LoadProfile(L["commonProfile"])
