@@ -62,6 +62,7 @@ function PC.Settings:CreateFrame()
 	self.frame:SetScript("OnMouseDown", function(self, button)
 		if button == "LeftButton" then self:StartMoving(); end
 		PC._settings:HidePopups()
+		PC._settings.list:ClearFocus()
 	end)
 	self.frame:SetScript("OnMouseUp", function(self, button)
 		if button == "LeftButton" then

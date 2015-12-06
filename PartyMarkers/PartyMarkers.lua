@@ -11,11 +11,18 @@ local workflow = Workflow:Create()
 local settings = Settings:Create()
 
 
------------------------------------------------------------------------------------------------------------------------
-
-
 local function ApplySettings()
 	workflow:SetData(settings.list:GetData())
+	workflow:Check()
+end
+
+local checkElapsed = 0.0
+local function CheckWorkflow(elapsed)
+	checkElapsed = checkElapsed + elapsed
+	if checkElapsed >= 5.0 and workflow.frame:IsVisible() then
+		checkElapsed = 0.0
+		workflow:Check()
+	end
 end
 
 local function CreateUi()
@@ -29,8 +36,6 @@ local function CreateUi()
 	if not PartyMarkersStorage["profileIndex"] then PartyMarkersStorage["profileIndex"] = 0; end
 	if not PartyMarkersStorage["data"] then PartyMarkersStorage["data"] = {}; end
 
-	-- mainFrame:SetFrameStrata("MEDIUM")
-	-- mainFrame:SetFrameLevel(50)
 	mainFrame:Show()
 	mainFrame:SetSize(PartyMarkersStorage["width"], PartyMarkersStorage["height"])
 	mainFrame:SetPoint(PartyMarkersStorage["point"], PartyMarkersStorage["x"], PartyMarkersStorage["y"])
@@ -127,6 +132,7 @@ end
 local function OnUpdate(self, elapsed)
 	settings:Resizing()
 	workflow:Resizing()
+	CheckWorkflow(elapsed)
 end
 
 mainFrame:RegisterEvent("PLAYER_LOGIN")

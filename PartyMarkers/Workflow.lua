@@ -98,6 +98,11 @@ function PC.Workflow:GetButton()
 	button.text:SetPoint("BOTTOMRIGHT", -20, 0)
 	button.text:SetTextColor(1,1,1,1)
 
+	button.SetNormal = function(self) self.text:SetTextColor(1, 1, 1, 1) end
+	button.SetGray = function(self) self.text:SetTextColor(0.5, 0.5, 0.5, 1) end
+	button.SetRed = function(self) self.text:SetTextColor(1, 0.5, 0.5, 1) end
+	button.SetGreen = function(self) self.text:SetTextColor(0.5, 1, 0.5, 1) end
+
 	button.icon = button:CreateTexture()
 	button.icon:SetPoint("TOPRIGHT")
 	button.icon:SetSize(button:GetHeight(), button:GetHeight())
@@ -106,6 +111,7 @@ function PC.Workflow:GetButton()
 		self.text:SetText(data.text)
 		self.iconIndex = data.iconIndex
 		self.icon:SetTexture(icons[data.iconIndex])
+		self:SetNormal()
 	end
 	button:SetScript("OnClick", function(self, button)
 		if button == "LeftButton" then
@@ -121,9 +127,9 @@ function PC.Workflow:GetButton()
 end
 
 function PC.Workflow:SetData(data)
-	for i=1,self.visibleButtons do self.buttons[i]:Hide(); end
+	for i = 1, self.visibleButtons do self.buttons[i]:Hide(); end
 	self.visibleButtons = 0
-	for k,v in ipairs(data) do
+	for k, v in ipairs(data) do
 		self:GetButton():SetData(v)
 	end
 end
@@ -142,4 +148,18 @@ end
 
 function PC.Workflow:Show()
 	self.frame:Show()
+end
+
+function PC.Workflow:Check()
+	for i = 1, self.visibleButtons do
+		local text = self.buttons[i].text:GetText()
+		if text then
+			if UnitExists(text) then
+				if CanBeRaidTarget(text) then self.buttons[i]:SetGreen();
+				else self.buttons[i]:SetRed(); end
+			else
+				self.buttons[i]:SetGray()
+			end
+		end
+	end
 end

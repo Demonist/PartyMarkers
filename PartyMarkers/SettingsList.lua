@@ -101,6 +101,7 @@ function PC.SettingsList:GetRow()
 	if not self.markers then
 		self.markers = CreateFrame("Frame", nil, PC._mainFrame)
 		self.markers:Hide()
+		self.markers:SetFrameStrata("HIGH")
 		self.markers.rowIndex = 0
 		self.markers:SetSize(row:GetHeight() + 8, 8 * row:GetHeight() + 22)
 		self.markers:SetPoint("LEFT", comboBox)
@@ -161,6 +162,7 @@ function PC.SettingsList:GetRow()
 	edit:SetTextInsets(5, 5, 0, 0)
 	edit:SetScript("OnMouseDown", function(self, button)
 		if PC._settingsList.markers then PC._settingsList.markers:Hide(); end
+		PC._settingsList:ClearFocus()
 
 		if button == "LeftButton" then
 			self:SetFocus()
@@ -177,6 +179,7 @@ function PC.SettingsList:GetRow()
 	if not self.players then
 		self.players = CreateFrame("Frame", nil, PC._mainFrame)
 		self.players:Hide()
+		self.players:SetFrameStrata("HIGH")
 		self.players.rowIndex = 0
 		self.players.buttons = {}
 		self.players.list = {}
@@ -186,7 +189,7 @@ function PC.SettingsList:GetRow()
 		self.players:SetBackdropColor(0.3, 0.3, 0.3, 1)
 		self.players:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
 		self.players:EnableKeyboard(true)
-		self.players:SetScript("OnKeyDown", function(self, key) if GetBindingFromClick(key)=="TOGGLEGAMEMENU" then self:Hide(); end end)
+		self.players:SetScript("OnKeyDown", function(self, key) if GetBindingFromClick(key) == "TOGGLEGAMEMENU" then self:Hide(); end end)
 		self.players.Popup = function(self, index)
 			if self:IsVisible() and self.rowIndex == index then
 				self:Hide()

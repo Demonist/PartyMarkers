@@ -1,7 +1,7 @@
 ## Interface: 60200
 ## Title: PartyMarkers
 ## Author: Demonist
-## Version: 0.0.2.0
+## Version: 0.0.2.1
 ## SavedVariables: PartyMarkersStorage
 ## Notes: Helps to set markers on players and mobs in a raid
 ## Notes-ruRU: Помогает назначать метки на игроков и мобов во время рейда
