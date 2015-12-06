@@ -29,11 +29,11 @@ end
 
 function PC.Settings:HidePopups()
 	if self.list then self.list:HidePopups(); end
+	if self.profileMenuFrame then self.profileMenuFrame:Hide(); end
 end
 
 function PC.Settings:SaveVariables()
 	if self.slider then PartyMarkersStorage["alpha"] = self.slider:GetValue(); end
-	if self.frame then PartyMarkersStorage["data"] = self.list:GetData(); end
 end
 
 function PC.Settings:Resizing()
@@ -41,6 +41,43 @@ function PC.Settings:Resizing()
 		if self.frame:GetWidth() < 170 then self.frame:SetWidth(170); end
 		if self.frame:GetHeight() < 100 then self.frame:SetHeight(100); end
 		self.scrollContainer:SetWidth( self.scroll:GetWidth() )
+	end
+end
+
+function PC.Settings:LoadProfile(profileName)
+	local data = PartyMarkersStorage["data2"][profileName]
+	if data then
+		PartyMarkersStorage["currentProfile"] = profileName
+		self.profile:SetText(profileName)
+		self.list:SetData(data)
+	end
+end
+
+function PC.Settings:UpdateProfileMenu()
+	local newList = {}
+	for name, profile in pairs(PartyMarkersStorage["data2"]) do
+		table.insert(newList, {text = name, notCheckable = true, keepShownOnClick = false, func = function() PC._settings:LoadProfile(name); end})
+	end
+	table.sort(newList, function(left, right) return string.lower(left.text) < string.lower(right.text) end)
+	self.profileMenu[1].menuList = newList
+end
+
+function PC.Settings:ProfileMenu_Save()
+	local text = self.profile:GetText()
+	PartyMarkersStorage["data2"][text] = self.list:GetData()
+	self:UpdateProfileMenu()
+end
+
+function PC.Settings:ProfileMenu_Remove()
+	local text = self.profile:GetText()
+	if PartyMarkersStorage["data2"][text] then
+		if text == L["commonProfile"] then
+			self.list:SetData({})
+		else
+			PartyMarkersStorage["data2"][text] = nil
+			self:LoadProfile(L["commonProfile"])
+		end
+		self:UpdateProfileMenu()
 	end
 end
 
@@ -63,6 +100,7 @@ function PC.Settings:CreateFrame()
 		if button == "LeftButton" then self:StartMoving(); end
 		PC._settings:HidePopups()
 		PC._settings.list:ClearFocus()
+		PC._settings.profile:ClearFocus()
 	end)
 	self.frame:SetScript("OnMouseUp", function(self, button)
 		if button == "LeftButton" then
@@ -96,6 +134,42 @@ function PC.Settings:CreateFrame()
 		PC._settings:HidePopups()
 		PC._settings.OnClose()
 	end)
+
+	--profile:
+	local profileTitle = self.frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLeft")
+	profileTitle:SetPoint("TOPLEFT", 10, -25)
+	profileTitle:SetText(L["profile"]..": ")
+
+	self.profile = CreateFrame("EditBox", nil, self.frame, "InputBoxTemplate")
+	self.profile:Show()
+	self.profile:SetPoint("TOPLEFT", profileTitle, "TOPRIGHT", 5, 0)
+	self.profile:SetPoint("RIGHT", -50, 0)
+	self.profile:SetHeight(10)
+	self.profile:SetAutoFocus(false)
+	self.profile:SetScript("OnMouseDown", function(self, button) if button == "LeftButton" then self:SetFocus(); end end)
+
+	local profileButton = CreateFrame("Button", nil, self.frame)
+	profileButton:Show()
+	profileButton:SetPoint("TOPLEFT", self.profile, "TOPRIGHT", 5, 0)
+	profileButton:SetSize(15, 15)
+	profileButton:SetNormalTexture("Interface\\Buttons\\Arrow-Down-Up")
+	profileButton:SetHighlightTexture("Interface\\Buttons\\Arrow-Down-Up")
+	profileButton:SetPushedTexture("Interface\\Buttons\\Arrow-Down-Down")
+	profileButton:SetScript("OnClick", function() ToggleDropDownMenu(1, nil, PC._settings.profileMenuFrame, PC._settings.profileMenuFrame, 0, 0, PC._settings.profileMenu, nil, nil); end)
+
+	self.profileMenuFrame = CreateFrame("Frame", "PartyMarkers_ProfileMenu", self.frame, "UIDropDownMenuTemplate")
+	self.profileMenuFrame:Hide()
+	self.profileMenuFrame:SetPoint("TOPLEFT", profileButton, "BOTTOMLEFT", 0, 30)
+	self.profileMenuFrame.displayMode = "MENU"
+
+	PC._settings.profileMenu = {
+		{text = L["load"], notCheckable = true, hasArrow = true, menuList = {}},
+		{text = L["save"], notCheckable = true, func = function() PC._settings:ProfileMenu_Save() end},
+		{text = L["remove"], notCheckable = true, func = function() PC._settings:ProfileMenu_Remove(); end}
+	}
+	
+	UIDropDownMenu_Initialize(PC._settings.profileMenuFrame, EasyMenu_Initialize, "MENU", nil, PC._settings.profileMenu)
+	self:UpdateProfileMenu()
 
 	--bottom:
 	local addButton = CreateFrame("Button", nil, self.frame)
@@ -151,7 +225,7 @@ function PC.Settings:CreateFrame()
 	--scroll:
 	local scroll = CreateFrame("ScrollFrame", "PartyMarkers_ScrollSettings", self.frame, "UIPanelScrollFrameTemplate")
 	scroll:Show()
-	scroll:SetPoint("TOPLEFT", 5, -20)
+	scroll:SetPoint("TOPLEFT", 5, -50)
 	scroll:SetPoint("RIGHT", self.frame, "RIGHT", -25, 0)
 	scroll:SetPoint("BOTTOM", resizeButton, "TOP", 0, 1)
 
@@ -165,5 +239,5 @@ function PC.Settings:CreateFrame()
 	self.scrollContainer = scrollContainer
 
 	self.list = PC.SettingsList:Create(self.scrollContainer)
-	self.list:SetData(PartyMarkersStorage["data"])
+	self:LoadProfile(PartyMarkersStorage["currentProfile"])
 end

@@ -63,7 +63,7 @@ function PC.Workflow:CreateFrame(parentFrame)
 	self.scroll = scroll
 	self.scrollContainer = scrollContainer
 
-	self:SetData(PartyMarkersStorage["data"])
+	self:SetData(PartyMarkersStorage["data2"][ PartyMarkersStorage["currentProfile"] ])
 end
 
 function PC.Workflow:UpdateSize()

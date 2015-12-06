@@ -32,9 +32,17 @@ local function CreateUi()
 	if not PartyMarkersStorage["y"] then PartyMarkersStorage["y"] = 0; end
 	if not PartyMarkersStorage["width"] then PartyMarkersStorage["width"] = 150; end
 	if not PartyMarkersStorage["height"] then PartyMarkersStorage["height"] = 200; end
-	if not PartyMarkersStorage["profiles"] then PartyMarkersStorage["profiles"] = {}; end
-	if not PartyMarkersStorage["profileIndex"] then PartyMarkersStorage["profileIndex"] = 0; end
-	if not PartyMarkersStorage["data"] then PartyMarkersStorage["data"] = {}; end
+
+	if not PartyMarkersStorage["currentProfile"] then PartyMarkersStorage["currentProfile"] = L["commonProfile"]; end
+	if not PartyMarkersStorage["data2"] then
+		PartyMarkersStorage["data2"] = {}
+		PartyMarkersStorage["data2"][L["commonProfile"]] = {}
+
+		if PartyMarkersStorage["data"] then
+			PartyMarkersStorage["data2"][L["commonProfile"]] = PartyMarkersStorage["data"]
+			PartyMarkersStorage["data"] = nil
+		end
+	end
 
 	mainFrame:Show()
 	mainFrame:SetSize(PartyMarkersStorage["width"], PartyMarkersStorage["height"])
