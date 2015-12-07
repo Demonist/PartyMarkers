@@ -32,6 +32,8 @@ local function CreateUi()
 	if not PartyMarkersStorage["y"] then PartyMarkersStorage["y"] = 0; end
 	if not PartyMarkersStorage["width"] then PartyMarkersStorage["width"] = 150; end
 	if not PartyMarkersStorage["height"] then PartyMarkersStorage["height"] = 200; end
+	if not PartyMarkersStorage["locked"] then PartyMarkersStorage["locked"] = false; end
+	if not PartyMarkersStorage["alpha"] then PartyMarkersStorage["alpha"] = 80; end
 
 	if not PartyMarkersStorage["currentProfile"] then PartyMarkersStorage["currentProfile"] = L["commonProfile"]; end
 	if not PartyMarkersStorage["data2"] then
@@ -51,13 +53,13 @@ local function CreateUi()
 	mainFrame:SetMovable(true)
 	mainFrame:SetResizable(true)
 
-	local header = CreateFrame("Frame", nil, mainFrame)
-	header:Show()
-	header:SetPoint("TOPLEFT")
-	header:SetPoint("RIGHT")
-	header:SetHeight(17)
+	mainFrame.header = CreateFrame("Frame", nil, mainFrame)
+	mainFrame.header:Show()
+	mainFrame.header:SetPoint("TOPLEFT")
+	mainFrame.header:SetPoint("RIGHT")
+	mainFrame.header:SetHeight(17)
 
-	header:SetScript("OnMouseDown", function(self, button)
+	mainFrame.header:SetScript("OnMouseDown", function(self, button)
 		if button == "LeftButton" then
 			if IsShiftKeyDown() then mainFrame:StartMoving();
 			else
@@ -76,7 +78,7 @@ local function CreateUi()
 			end
 		end
 	end)
-	header:SetScript("OnMouseUp", function(self, button)
+	mainFrame.header:SetScript("OnMouseUp", function(self, button)
 		if button == "LeftButton" then
 			mainFrame:StopMovingOrSizing();
 
@@ -87,15 +89,15 @@ local function CreateUi()
 		end
 	end)
 	
-	local texture = header:CreateTexture()
+	local texture = mainFrame.header:CreateTexture()
 	texture:SetAllPoints()
 	texture:SetTexture(0.05, 0.05, 0.05, 1)
 
-	local title = header:CreateFontString(nil, "OVERLAY", "GameFontNormalLeft")
+	local title = mainFrame.header:CreateFontString(nil, "OVERLAY", "GameFontNormalLeft")
 	title:SetPoint("TOPLEFT", 5, -1)
 	title:SetText("PartyMarkers")
 
-	local settingsButton = CreateFrame("Button", "PartyMarkers_SettingsButton", header)
+	local settingsButton = CreateFrame("Button", "PartyMarkers_SettingsButton", mainFrame.header)
 	settingsButton:SetScript("OnClick", function() 
 		if state == StateNone then
 			workflowWasVisible = false
@@ -135,6 +137,12 @@ local function CreateUi()
 		end
 	end
 	settings.OnAlphaChanged = function(alpha) workflow.frame:SetAlpha(alpha); end
+	workflow.frame:SetAlpha(PartyMarkersStorage["alpha"] / 100)
+
+	if PartyMarkersStorage["locked"] then
+		workflow:Show()
+		state = StateWorkflow
+	end
 end
 
 local function OnUpdate(self, elapsed)

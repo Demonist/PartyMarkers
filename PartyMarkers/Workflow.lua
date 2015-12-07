@@ -24,21 +24,29 @@ function PC.Workflow:CreateFrame(parentFrame)
 	texture:SetAllPoints()
 	texture:SetTexture(0.1, 0.1, 0.1, 1)
 
-	local resizeButton = CreateFrame("Button", nil, self.frame)
-	resizeButton:Show()
-	resizeButton:SetWidth(10)
-	resizeButton:SetHeight(10)
-	resizeButton:SetPoint("BOTTOMRIGHT")
-	resizeButton:EnableMouse(true)
-	resizeButton:SetNormalTexture("Interface\\CHATFRAME\\UI-ChatIM-SizeGrabber-Up")
-	resizeButton:SetHighlightTexture("Interface\\CHATFRAME\\UI-ChatIM-SizeGrabber-Down")
-	resizeButton:SetScript("OnMouseDown", function(self, button)
+	local lockButton = CreateFrame("Button", nil, self.frame)
+	lockButton:Show()
+	lockButton:SetSize(10, 10)
+	lockButton:SetPoint("BOTTOMLEFT", 1, 0)
+	lockButton:SetNormalTexture("Interface\\CHATFRAME\\UI-ChatFrame-LockIcon")
+	lockButton:SetHighlightTexture("Interface\\CHATFRAME\\UI-ChatFrame-LockIcon")
+	lockButton:SetScript("OnClick", function() PartyMarkersStorage["locked"] = not PartyMarkersStorage["locked"]; PC._workflow:SetLocked(PartyMarkersStorage["locked"]); end)
+
+	self.resizeButton = CreateFrame("Button", nil, self.frame)
+	self.resizeButton:Show()
+	self.resizeButton:SetWidth(10)
+	self.resizeButton:SetHeight(10)
+	self.resizeButton:SetPoint("BOTTOMRIGHT")
+	self.resizeButton:EnableMouse(true)
+	self.resizeButton:SetNormalTexture("Interface\\CHATFRAME\\UI-ChatIM-SizeGrabber-Up")
+	self.resizeButton:SetHighlightTexture("Interface\\CHATFRAME\\UI-ChatIM-SizeGrabber-Down")
+	self.resizeButton:SetScript("OnMouseDown", function(self, button)
 		if button == "LeftButton" then
 			PC._workflow.resizing = true
 			PC._mainFrame:StartSizing()
 		end 
 	end)
-	resizeButton:SetScript("OnMouseUp", function(self, button)
+	self.resizeButton:SetScript("OnMouseUp", function(self, button)
 		if button == "LeftButton" then
 			PC._mainFrame:StopMovingOrSizing()
 			PC._workflow.resizing = false
@@ -52,7 +60,7 @@ function PC.Workflow:CreateFrame(parentFrame)
 	scroll:Show()
 	scroll:SetPoint("TOPLEFT", 5, -5)
 	scroll:SetPoint("RIGHT", -25, 0)
-	scroll:SetPoint("BOTTOM", resizeButton, "TOP", 0, 1)
+	scroll:SetPoint("BOTTOM", self.resizeButton, "TOP", 0, 1)
 
 	local scrollContainer = CreateFrame("Frame", nil, scroll)
 	scrollContainer:Show()
@@ -64,6 +72,7 @@ function PC.Workflow:CreateFrame(parentFrame)
 	self.scrollContainer = scrollContainer
 
 	self:SetData(PartyMarkersStorage["data2"][ PartyMarkersStorage["currentProfile"] ])
+	self:SetLocked(PartyMarkersStorage["locked"])
 end
 
 function PC.Workflow:UpdateSize()
@@ -161,5 +170,15 @@ function PC.Workflow:Check()
 				self.buttons[i]:SetGray()
 			end
 		end
+	end
+end
+
+function PC.Workflow:SetLocked(locked)
+	if locked then
+		self.resizeButton:Hide()
+		PC._mainFrame.header:Hide()
+	else
+		self.resizeButton:Show()
+		PC._mainFrame.header:Show()
 	end
 end

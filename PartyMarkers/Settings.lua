@@ -88,7 +88,6 @@ function PC.Settings:CreateFrame()
 	if not PartyMarkersStorage["settingsY"] then PartyMarkersStorage["settingsY"] = 0; end
 	if not PartyMarkersStorage["settingsWidth"] then PartyMarkersStorage["settingsWidth"] = 200; end
 	if not PartyMarkersStorage["settingsHeight"] then PartyMarkersStorage["settingsHeight"] = 300; end
-	if not PartyMarkersStorage["alpha"] then PartyMarkersStorage["alpha"] = 80; end
 
 	self.frame = CreateFrame("Frame", nil, UIParent)
 	self.frame:Show()
