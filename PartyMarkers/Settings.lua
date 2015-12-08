@@ -65,6 +65,7 @@ end
 function PC.Settings:ProfileMenu_Save()
 	local text = self.profile:GetText()
 	PartyMarkersStorage["data2"][text] = self.list:GetData()
+	PartyMarkersStorage["currentProfile"] = text
 	self:UpdateProfileMenu()
 end
 

@@ -72,7 +72,14 @@ function PC.Workflow:CreateFrame(parentFrame)
 	self.scrollContainer = scrollContainer
 
 	self:SetData(PartyMarkersStorage["data2"][ PartyMarkersStorage["currentProfile"] ])
+	
 	self:SetLocked(PartyMarkersStorage["locked"])
+	if PartyMarkersStorage["locked"] then 	--Костыль от бага с первым запуском.
+		PartyMarkers_ScrollWorkflowScrollBar:SetScript("OnShow", function(self)
+			self:Hide()
+			self:SetScript("OnShow", nil)
+		end)
+	end
 end
 
 function PC.Workflow:UpdateSize()
@@ -157,6 +164,7 @@ end
 
 function PC.Workflow:Show()
 	self.frame:Show()
+	if PartyMarkersStorage["locked"] then PartyMarkers_ScrollWorkflowScrollBar:Hide(); end
 end
 
 function PC.Workflow:Check()
@@ -177,8 +185,18 @@ function PC.Workflow:SetLocked(locked)
 	if locked then
 		self.resizeButton:Hide()
 		PC._mainFrame.header:Hide()
+		if PartyMarkers_ScrollWorkflowScrollBar then
+			PartyMarkers_ScrollWorkflowScrollBar:Hide()
+			self.scroll:SetPoint("RIGHT", -5, 0, self.frame)
+			self.scrollContainer:SetWidth( self.scroll:GetWidth() )
+		end
 	else
 		self.resizeButton:Show()
 		PC._mainFrame.header:Show()
+		if PartyMarkers_ScrollWorkflowScrollBar then
+			PartyMarkers_ScrollWorkflowScrollBar:Show()
+			self.scroll:SetPoint("RIGHT", -25, 0, self.frame)
+			self.scrollContainer:SetWidth( self.scroll:GetWidth() )
+		end
 	end
 end
