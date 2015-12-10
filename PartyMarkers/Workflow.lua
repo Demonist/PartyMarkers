@@ -10,6 +10,12 @@ function PC.Workflow:Create()
 	ret.buttons = {}
 	ret.visibleButtons = 0
 
+	ret.checkElapsed = 0.0
+
+	ret.autoMarkIndexes = {}
+	ret.autoMarkCount = 0
+	ret.autoMarkElapsed = 0.0
+
 	PC._workflow = setmetatable(ret, PC.Workflow)
 	return PC._workflow
 end
@@ -98,7 +104,7 @@ function PC.Workflow:GetButton()
 	local button = CreateFrame("Button", nil, self.scrollContainer)
 	button:Show()
 	button.iconIndex = 0
-	button:SetPoint("LEFT")
+	button:SetPoint("LEFT", 17, 0)
 	button:SetPoint("RIGHT")
 	button:SetHeight(15)
 	if #self.buttons == 0 then button:SetPoint("TOP", 0, -2);
@@ -108,6 +114,15 @@ function PC.Workflow:GetButton()
 	button.texture:SetAllPoints()
 	button.texture:SetTexture(0.2, 0.2, 0.2, 1)
 	button:SetHighlightTexture(button.texture)
+
+	button.check = CreateFrame("CheckButton", nil, self.scrollContainer, "OptionsBaseCheckButtonTemplate")
+	button.check:Show()
+	button.check:SetPoint("TOPLEFT", button, "TOPLEFT", -17, 0)
+	button.check:SetSize(15, 15)
+	button.check.index = #self.buttons + 1
+	button.check:SetScript("OnClick", function(self) PC._workflow:SetAutoMark(self.index, self:GetChecked()); end)
+	button:SetScript("OnShow", function(self) self.check:Show(); end)
+	button:SetScript("OnHide", function(self) self.check:Hide(); end)
 
 	button.text = button:CreateFontString(nil, "OVERLAY", "GameFontNormalLeft")
 	button.text:SetPoint("TOPLEFT", 5, -1)
@@ -148,13 +163,34 @@ function PC.Workflow:SetData(data)
 	for k, v in ipairs(data) do
 		self:GetButton():SetData(v)
 	end
+
+	for i, _ in pairs(self.autoMarkIndexes) do
+		if i > self.visibleButtons then
+			self:SetAutoMark(i, false)
+			self.buttons[i].check:SetChecked(false)
+		end
+	end
 end
 
-function PC.Workflow:Resizing()
+function PC.Workflow:OnUpdate(elapsed)
 	if self.resizing then
 		if PC._mainFrame:GetWidth() < 100 then PC._mainFrame:SetWidth(100); end
 		if PC._mainFrame:GetHeight() < 80 then PC._mainFrame:SetHeight(80); end
 		self.scrollContainer:SetWidth( self.scroll:GetWidth() )
+	elseif self.frame:IsVisible() then
+		self.checkElapsed = self.checkElapsed + elapsed
+		if self.checkElapsed >= 5.0 then
+			self.checkElapsed = 0.0
+			self:Check()
+		end
+
+		if self.autoMarkCount > 0 then
+			self.autoMarkElapsed = self.autoMarkElapsed + elapsed
+			if self.autoMarkElapsed >= 1.0 then
+				self.autoMarkElapsed = 0.0
+				self:AutoMark()
+			end
+		end
 	end
 end
 
@@ -198,5 +234,37 @@ function PC.Workflow:SetLocked(locked)
 			self.scroll:SetPoint("RIGHT", -25, 0, self.frame)
 			self.scrollContainer:SetWidth( self.scroll:GetWidth() )
 		end
+	end
+end
+
+function PC.Workflow:SetAutoMark(index, enable)
+	if enable then
+		self.autoMarkIndexes[index] = true
+		self.autoMarkCount = self.autoMarkCount + 1
+	else
+		self.autoMarkIndexes[index] = nil
+		self.autoMarkCount = self.autoMarkCount - 1
+	end
+end
+
+function PC.Workflow:AutoMark()
+	for index, _ in pairs(self.autoMarkIndexes) do
+		local text = self.buttons[index].text:GetText()
+		if UnitExists(text) and CanBeRaidTarget(text) then
+			local iconIndex = GetRaidTargetIndex(text)
+			if not iconIndex then
+				SetRaidTargetIcon(text, self.buttons[index].iconIndex)
+			end
+		end
+	end
+end
+
+function PC.Workflow:ClearAutoMark()
+	if self.autoMarkCount > 0 then
+		self.autoMarkCount = 0
+		for index, _ in pairs(self.autoMarkIndexes) do
+			self.buttons[index].check:SetChecked(false)
+		end
+		self.autoMarkIndexes = {}
 	end
 end

@@ -12,6 +12,7 @@ function PC.Settings:Create()
 
 	ret.OnClose = function() end
 	ret.OnAlphaChanged = function(alpha) end
+	ret.OnLoad = function() end
 
 	PC._settings = setmetatable(ret, PC.Settings)
 	return PC._settings
@@ -36,7 +37,7 @@ function PC.Settings:SaveVariables()
 	if self.slider then PartyMarkersStorage["alpha"] = self.slider:GetValue(); end
 end
 
-function PC.Settings:Resizing()
+function PC.Settings:OnUpdate()
 	if self.resizing then
 		if self.frame:GetWidth() < 170 then self.frame:SetWidth(170); end
 		if self.frame:GetHeight() < 100 then self.frame:SetHeight(100); end
@@ -50,6 +51,7 @@ function PC.Settings:LoadProfile(profileName)
 		PartyMarkersStorage["currentProfile"] = profileName
 		self.profile:SetText(profileName)
 		self.list:SetData(data)
+		self.OnLoad()
 	end
 end
 

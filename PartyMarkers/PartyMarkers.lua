@@ -16,15 +16,6 @@ local function ApplySettings()
 	workflow:Check()
 end
 
-local checkElapsed = 0.0
-local function CheckWorkflow(elapsed)
-	checkElapsed = checkElapsed + elapsed
-	if checkElapsed >= 5.0 and workflow.frame:IsVisible() then
-		checkElapsed = 0.0
-		workflow:Check()
-	end
-end
-
 local function CreateUi()
 	if not PartyMarkersStorage then PartyMarkersStorage = {}; end
 	if not PartyMarkersStorage["point"] then PartyMarkersStorage["point"] = "CENTER"; end
@@ -138,6 +129,7 @@ local function CreateUi()
 	end
 	settings.OnAlphaChanged = function(alpha) workflow.frame:SetAlpha(alpha); end
 	workflow.frame:SetAlpha(PartyMarkersStorage["alpha"] / 100)
+	settings.OnLoad = function() workflow:ClearAutoMark(); end
 
 	if PartyMarkersStorage["locked"] then
 		workflow:Show()
@@ -146,9 +138,8 @@ local function CreateUi()
 end
 
 local function OnUpdate(self, elapsed)
-	settings:Resizing()
-	workflow:Resizing()
-	CheckWorkflow(elapsed)
+	settings:OnUpdate(elapsed)
+	workflow:OnUpdate(elapsed)
 end
 
 mainFrame:RegisterEvent("PLAYER_LOGIN")
