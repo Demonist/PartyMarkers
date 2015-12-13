@@ -146,12 +146,15 @@ mainFrame:RegisterEvent("PLAYER_LOGIN")
 mainFrame:RegisterEvent("PLAYER_LOGOUT")
 mainFrame:RegisterEvent("PARTY_CONVERTED_TO_RAID")
 mainFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+mainFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 local function OnEvent(self, event, ...)
 	if event == "PLAYER_LOGIN" then
 		CreateUi()
 		mainFrame:SetScript("OnUpdate", OnUpdate)
 	elseif event == "PARTY_CONVERTED_TO_RAID" or event == "GROUP_ROSTER_UPDATE" and settings.list then
 		settings.list:UpdatePlayers()
+	elseif event == "UPDATE_MOUSEOVER_UNIT" then
+		workflow:OnMouseOverChanged()
 	elseif event == "PLAYER_LOGOUT" and settings.frame then
 		settings:SaveVariables()
 	end

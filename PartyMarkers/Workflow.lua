@@ -16,6 +16,8 @@ function PC.Workflow:Create()
 	ret.autoMarkCount = 0
 	ret.autoMarkElapsed = 0.0
 
+	ret.nameIndexes = {}
+
 	PC._workflow = setmetatable(ret, PC.Workflow)
 	return PC._workflow
 end
@@ -120,7 +122,7 @@ function PC.Workflow:GetButton()
 	button.check:SetPoint("TOPLEFT", button, "TOPLEFT", -17, 0)
 	button.check:SetSize(15, 15)
 	button.check.index = #self.buttons + 1
-	button.check:SetScript("OnClick", function(self) PC._workflow:SetAutoMark(self.index, self:GetChecked()); end)
+	button.check:SetScript("OnClick", function(self) PC._workflow:SetAutoMarks(self.index, self:GetChecked()); end)
 	button:SetScript("OnShow", function(self) self.check:Show(); end)
 	button:SetScript("OnHide", function(self) self.check:Hide(); end)
 
@@ -160,8 +162,16 @@ end
 function PC.Workflow:SetData(data)
 	for i = 1, self.visibleButtons do self.buttons[i]:Hide(); end
 	self.visibleButtons = 0
+	self.nameIndexes = {}
 	for k, v in ipairs(data) do
 		self:GetButton():SetData(v)
+
+		if not self.nameIndexes[v.text] then
+			self.nameIndexes[v.text] = {}
+			self.nameIndexes[v.text].index = 1
+			self.nameIndexes[v.text].iconIndexes = {}
+		end
+		table.insert(self.nameIndexes[v.text].iconIndexes, v.iconIndex)
 	end
 
 	for i, _ in pairs(self.autoMarkIndexes) do
@@ -247,13 +257,41 @@ function PC.Workflow:SetAutoMark(index, enable)
 	end
 end
 
+function PC.Workflow:SetAutoMarks(index, enable)
+	self:SetAutoMark(index, enable)
+	local text = self.buttons[index].text:GetText()
+	for i = 1, self.visibleButtons do
+		if i ~= index and self.buttons[i].text:GetText() == text then 
+			self:SetAutoMark(i, enable)
+			self.buttons[i].check:SetChecked(enable)
+		end
+	end
+end
+
+function PC.Workflow:GetIconIndex(name)
+	local indexes = self.nameIndexes[name]
+	if indexes then
+		local currentIndex = indexes.index
+		if currentIndex < #indexes.iconIndexes then indexes.index = indexes.index + 1;
+		elseif currentIndex == #indexes.iconIndexes and currentIndex > 1 then indexes.index = 1; end
+		return indexes.iconIndexes[currentIndex]
+	end
+	return 0
+end
+
 function PC.Workflow:AutoMark()
+	local target = UnitName("target")
+	local mouseOver = UnitName("mouseover")
 	for index, _ in pairs(self.autoMarkIndexes) do
-		local text = self.buttons[index].text:GetText()
+		local name = self.buttons[index].text:GetText()
+		local text = name
+		if text == target then text = "target";
+		elseif text == mouseOver then text = "mouseover"; end
+
 		if UnitExists(text) and CanBeRaidTarget(text) then
 			local iconIndex = GetRaidTargetIndex(text)
 			if not iconIndex then
-				SetRaidTargetIcon(text, self.buttons[index].iconIndex)
+				SetRaidTargetIcon(text, self:GetIconIndex(name))
 			end
 		end
 	end
@@ -266,5 +304,23 @@ function PC.Workflow:ClearAutoMark()
 			self.buttons[index].check:SetChecked(false)
 		end
 		self.autoMarkIndexes = {}
+	end
+end
+
+function PC.Workflow:OnMouseOverChanged()
+	if self.autoMarkCount == 0 or self.frame:IsVisible() == false then return; end
+
+	local mouseOver = UnitName("mouseover")
+	for index, _ in pairs(self.autoMarkIndexes) do
+		local name = self.buttons[index].text:GetText()
+		if name == mouseOver then
+			if CanBeRaidTarget("mouseover") then
+				local iconIndex = GetRaidTargetIndex("mouseover")
+				if not iconIndex then
+					SetRaidTargetIcon("mouseover", self:GetIconIndex(name))
+				end
+			end
+			break
+		end
 	end
 end
