@@ -12,11 +12,13 @@ function PC.Workflow:Create()
 
 	ret.checkElapsed = 0.0
 
-	ret.autoMarkIndexes = {}
+	ret.autoMarkIndexes = {}	--autoMarNames["target"] = 5; 5 - индекс в buttons
+	ret.autoMarkNames = {}		--autoMarNames["target"] = true
+
 	ret.autoMarkCount = 0
 	ret.autoMarkElapsed = 0.0
 
-	ret.nameIndexes = {}
+	ret.nameIndexes = {}		--Используется для цикличного назначения меток
 
 	PC._workflow = setmetatable(ret, PC.Workflow)
 	return PC._workflow
@@ -94,6 +96,14 @@ function PC.Workflow:UpdateSize()
 	self.scrollContainer:SetHeight(self.visibleButtons * 15 + (self.visibleButtons-1) * 2 + 4)
 end
 
+local function MarkUnitId(unitId, name, iconIndex)
+	if UnitExists(unitId) and UnitName(unitId) == name then
+		SetRaidTargetIcon(unitId, iconIndex)
+		return true
+	end
+	return nil
+end
+
 function PC.Workflow:GetButton()
 	if self.visibleButtons < #self.buttons then
 		local button = self.buttons[self.visibleButtons + 1]
@@ -148,8 +158,23 @@ function PC.Workflow:GetButton()
 	end
 	button:SetScript("OnClick", function(self, button)
 		if button == "LeftButton" then
-			local text = self.text:GetText()
-			if text then SetRaidTargetIcon(text, self.iconIndex); end
+			local name = self.text:GetText()
+			if name then
+				if UnitExists(name) then SetRaidTargetIcon(name, self.iconIndex);
+				elseif not MarkUnitId("target", name, self.iconIndex) then
+					if IsInRaid() then
+						for i = 1, 40 do
+							local unitId = "raid"..i.."-target"
+							if MarkUnitId(unitId, name, self.iconIndex) then break; end
+						end
+					elseif IsInGroup() then
+						for i = 1, 4 do
+							local unitId = "party"..i.."-target"
+							if MarkUnitId(unitId, name, self.iconIndex) then break; end
+						end
+					end
+				end
+			end
 		end
 	end)
 
@@ -196,7 +221,7 @@ function PC.Workflow:OnUpdate(elapsed)
 
 		if self.autoMarkCount > 0 then
 			self.autoMarkElapsed = self.autoMarkElapsed + elapsed
-			if self.autoMarkElapsed >= 1.0 then
+			if self.autoMarkElapsed >= 0.5 then
 				self.autoMarkElapsed = 0.0
 				self:AutoMark()
 			end
@@ -249,11 +274,13 @@ end
 
 function PC.Workflow:SetAutoMark(index, enable)
 	if enable then
-		self.autoMarkIndexes[index] = true
 		self.autoMarkCount = self.autoMarkCount + 1
+		self.autoMarkIndexes[index] = true
+		self.autoMarkNames[self.buttons[index].text:GetText()] = true
 	else
-		self.autoMarkIndexes[index] = nil
 		self.autoMarkCount = self.autoMarkCount - 1
+		self.autoMarkIndexes[index] = nil
+		self.autoMarkNames[self.buttons[index].text:GetText()] = nil
 	end
 end
 
@@ -279,20 +306,30 @@ function PC.Workflow:GetIconIndex(name)
 	return 0
 end
 
-function PC.Workflow:AutoMark()
-	local target = UnitName("target")
-	local mouseOver = UnitName("mouseover")
-	for index, _ in pairs(self.autoMarkIndexes) do
-		local name = self.buttons[index].text:GetText()
-		local text = name
-		if text == target then text = "target";
-		elseif text == mouseOver then text = "mouseover"; end
+function PC.Workflow:AutoMarkHelper(unitId)
+	local unitName = UnitName(unitId)
+	if unitName and self.autoMarkNames[unitName] then
+		local unitIconIndex = GetRaidTargetIndex(unitId)
+		if not unitIconIndex then SetRaidTargetIcon(unitId, self:GetIconIndex(unitName)); end
+	end
+end
 
-		if UnitExists(text) and CanBeRaidTarget(text) then
-			local iconIndex = GetRaidTargetIndex(text)
-			if not iconIndex then
-				SetRaidTargetIcon(text, self:GetIconIndex(name))
-			end
+function PC.Workflow:AutoMark()
+	self:AutoMarkHelper("target")
+
+	for name, _ in pairs(self.autoMarkNames) do
+		self:AutoMarkHelper(name)
+	end
+
+	if IsInRaid() then
+		for i = 1, 40 do
+			local unitId = "raid"..i.."-target"
+			if UnitExists(unitId) then self:AutoMarkHelper(unitId); end
+		end
+	elseif IsInGroup() then
+		for i = 1, 4 do
+			local unitId = "party"..i.."-target"
+			if UnitExists(unitId) then self:AutoMarkHelper(unitId); end
 		end
 	end
 end
@@ -304,23 +341,11 @@ function PC.Workflow:ClearAutoMark()
 			self.buttons[index].check:SetChecked(false)
 		end
 		self.autoMarkIndexes = {}
+		self.autoMarkNames = {}
 	end
 end
 
 function PC.Workflow:OnMouseOverChanged()
 	if self.autoMarkCount == 0 or self.frame:IsVisible() == false then return; end
-
-	local mouseOver = UnitName("mouseover")
-	for index, _ in pairs(self.autoMarkIndexes) do
-		local name = self.buttons[index].text:GetText()
-		if name == mouseOver then
-			if CanBeRaidTarget("mouseover") then
-				local iconIndex = GetRaidTargetIndex("mouseover")
-				if not iconIndex then
-					SetRaidTargetIcon("mouseover", self:GetIconIndex(name))
-				end
-			end
-			break
-		end
-	end
+	self:AutoMarkHelper("mouseover")
 end
