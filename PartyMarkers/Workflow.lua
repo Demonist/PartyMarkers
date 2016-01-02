@@ -42,6 +42,22 @@ function PC.Workflow:CreateFrame(parentFrame)
 	lockButton:SetHighlightTexture("Interface\\CHATFRAME\\UI-ChatFrame-LockIcon")
 	lockButton:SetScript("OnClick", function() PartyMarkersStorage["locked"] = not PartyMarkersStorage["locked"]; PC._workflow:SetLocked(PartyMarkersStorage["locked"]); end)
 
+	local checkAllButton = CreateFrame("CheckButton", nil, self.frame)
+	checkAllButton:Show()
+	checkAllButton:SetSize(10, 10)
+	checkAllButton:SetPoint("TOPLEFT", lockButton, "TOPRIGHT", 10, 0)
+	checkAllButton:SetNormalTexture("Interface\\Buttons\\UI-CheckBox-Check")
+	checkAllButton:SetHighlightTexture("Interface\\Buttons\\UI-CheckBox-Check")
+	checkAllButton:SetScript("OnClick", function() PC._workflow:CheckAll(); end)
+
+	local uncheckAllButton = CreateFrame("Button", nil, self.frame)
+	uncheckAllButton:Show()
+	uncheckAllButton:SetSize(10, 10)
+	uncheckAllButton:SetPoint("TOPLEFT", checkAllButton, "TOPRIGHT", 5, 0)
+	uncheckAllButton:SetNormalTexture("Interface\\Buttons\\UI-CheckBox-Check-Disabled")
+	uncheckAllButton:SetHighlightTexture("Interface\\Buttons\\UI-CheckBox-Check-Disabled")
+	uncheckAllButton:SetScript("OnClick", function() PC._workflow:UncheckAll(); end)
+
 	self.resizeButton = CreateFrame("Button", nil, self.frame)
 	self.resizeButton:Show()
 	self.resizeButton:SetWidth(10)
@@ -235,6 +251,7 @@ end
 
 function PC.Workflow:Show()
 	self.frame:Show()
+	self:Check()
 	if PartyMarkersStorage["locked"] then PartyMarkers_ScrollWorkflowScrollBar:Hide(); end
 end
 
@@ -268,6 +285,24 @@ function PC.Workflow:SetLocked(locked)
 			PartyMarkers_ScrollWorkflowScrollBar:Show()
 			self.scroll:SetPoint("RIGHT", -25, 0, self.frame)
 			self.scrollContainer:SetWidth( self.scroll:GetWidth() )
+		end
+	end
+end
+
+function PC.Workflow:CheckAll()
+	for i = 1, self.visibleButtons do
+		if self.buttons[i].check:GetChecked() == false then
+			self.buttons[i].check:SetChecked(true)
+			self:SetAutoMark(i, true)
+		end
+	end
+end
+
+function PC.Workflow:UncheckAll()
+	for i = 1, self.visibleButtons do
+		if self.buttons[i].check:GetChecked() then
+			self.buttons[i].check:SetChecked(false)
+			self:SetAutoMark(i, false)
 		end
 	end
 end
