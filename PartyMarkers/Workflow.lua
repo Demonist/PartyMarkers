@@ -237,7 +237,7 @@ function PC.Workflow:OnUpdate(elapsed)
 
 		if self.autoMarkCount > 0 then
 			self.autoMarkElapsed = self.autoMarkElapsed + elapsed
-			if self.autoMarkElapsed >= 0.5 then
+			if self.autoMarkElapsed >= 1.0 then
 				self.autoMarkElapsed = 0.0
 				self:AutoMark()
 			end
