@@ -84,9 +84,9 @@ local function CreateUi()
 	texture:SetAllPoints()
 	texture:SetTexture(0.05, 0.05, 0.05, 1)
 
-	local title = mainFrame.header:CreateFontString(nil, "OVERLAY", "GameFontNormalLeft")
-	title:SetPoint("TOPLEFT", 5, -1)
-	title:SetText("PartyMarkers")
+	mainFrame.header.title = mainFrame.header:CreateFontString(nil, "OVERLAY", "GameFontNormalLeft")
+	mainFrame.header.title:SetPoint("TOPLEFT", 5, -1)
+	mainFrame.header.title:SetText("PartyMarkers")
 
 	local settingsButton = CreateFrame("Button", "PartyMarkers_SettingsButton", mainFrame.header)
 	settingsButton:SetScript("OnClick", function() 

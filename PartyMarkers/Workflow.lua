@@ -29,6 +29,8 @@ function PC.Workflow:CreateFrame(parentFrame)
 	self.frame:Hide()
 	self.frame:SetPoint("TOPLEFT", 0, -17)
 	self.frame:SetPoint("BOTTOMRIGHT")
+
+	self.parentFrameTitle = parentFrame.header.title
 	
 	local texture = self.frame:CreateTexture()
 	texture:SetAllPoints()
@@ -247,12 +249,14 @@ end
 
 function PC.Workflow:Hide()
 	self.frame:Hide()
+	if self.autoMarkCount > 0 then self.parentFrameTitle:SetText("PartyMarkers - off"); end
 end
 
 function PC.Workflow:Show()
 	self.frame:Show()
 	self:Check()
 	if PartyMarkersStorage["locked"] then PartyMarkers_ScrollWorkflowScrollBar:Hide(); end
+	self.parentFrameTitle:SetText("PartyMarkers")
 end
 
 function PC.Workflow:Check()
@@ -307,7 +311,7 @@ function PC.Workflow:UncheckAll()
 	end
 end
 
-function PC.Workflow:SetAutoMark(index, enable)
+function PC.Workflow:SetAutoMark(index, enable)	--управляет маркированием одной кнопки
 	if enable then
 		self.autoMarkCount = self.autoMarkCount + 1
 		self.autoMarkIndexes[index] = true
@@ -319,7 +323,7 @@ function PC.Workflow:SetAutoMark(index, enable)
 	end
 end
 
-function PC.Workflow:SetAutoMarks(index, enable)
+function PC.Workflow:SetAutoMarks(index, enable)	--управляет маркированием всех кнопок с одинаковым именем цели
 	self:SetAutoMark(index, enable)
 	local text = self.buttons[index].text:GetText()
 	for i = 1, self.visibleButtons do
