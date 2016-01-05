@@ -236,7 +236,7 @@ function PC.Workflow:OnUpdate(elapsed)
 			self.checkElapsed = 0.0
 			self:Check()
 		end
-
+		
 		if self.autoMarkCount > 0 then
 			self.autoMarkElapsed = self.autoMarkElapsed + elapsed
 			if self.autoMarkElapsed >= 1.0 then
@@ -385,6 +385,6 @@ function PC.Workflow:ClearAutoMark()
 end
 
 function PC.Workflow:OnMouseOverChanged()
-	if self.autoMarkCount == 0 or self.frame:IsVisible() == false then return; end
+	if self.autoMarkCount == 0 or not self.frame:IsVisible() then return; end
 	self:AutoMarkHelper("mouseover")
 end

@@ -160,3 +160,27 @@ local function OnEvent(self, event, ...)
 	end
 end
 mainFrame:SetScript("OnEvent", OnEvent)
+
+posBackup = {}
+posBackup.hided = false
+SLASH_PARTYMARKERS1, SLASH_PARTYMARKERS2 = "/pm", "/partymarkers"
+function SlashCmdList.PARTYMARKERS(msg, editbox)
+	if state == StateWorkflow then
+		if workflow.autoMarkCount == 0 then
+			DEFAULT_CHAT_FRAME:AddMessage("|cFFffff00PartyMarkers:|r No auto marks - main frame can't be hiden.")
+			return
+		end
+
+		if posBackup.hided == false then
+			posBackup.point, posBackup.relative, posBackup.relativePoint, posBackup.x, posBackup.y = mainFrame:GetPoint()
+			posBackup.hided = true
+			mainFrame:SetPoint("TOPLEFT", UIParent, "BOTTOMRIGHT", 10, -10)
+		else
+			mainFrame:ClearAllPoints()
+			mainFrame:SetPoint(posBackup.point, posBackup.relative, posBackup.relativePoint, posBackup.x, posBackup.y)
+			posBackup.hided = false
+		end
+	else
+		DEFAULT_CHAT_FRAME:AddMessage("|cFFffff00PartyMarkers:|r Workflow is not visible - main frame can't be hiden.")
+	end
+end
