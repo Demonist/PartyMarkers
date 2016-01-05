@@ -13,7 +13,8 @@ Firstly, in **setting mode** you should manually fill the list of units with mar
 > Also you can change the rows order by the **Order** buttons.  
 > Click the **Unit name** field by right mouse button to see the list of party's members. Click this field by middle mouse button to set the **Unit name** from you target.  
 > Use the **Marker** button to change unit marker.
-> You can change workflow and settings window transparency by the **Transparency** slider.
+> You can change workflow and settings window transparency by the **Transparency** slider.  
+> This window is movable by left mouse button.
 
 Secondly, in **workflow mode** you can manually set/unset markers by the **Button** click.  
 ![_image not found_](screenshots/workflowHelp.png)  
@@ -22,7 +23,8 @@ Secondly, in **workflow mode** you can manually set/unset markers by the **Butto
 > Use the **Check all** and **Uncheck all** buttons to quick auto marking enable/disable.  
 > You can click the header to change between compact and normal view. **In the compact view auto marking is disabled**.  
 > Use the **Lock** button to switch between locked and normal view.  
-> Unit name can has a several colors. White - unit state is unknown. Grey - unit not found. Green - unit found and can be marked. Red - unit found and can't be marked. Color checked every 5 seconds.
+> Unit name can has a several colors. White - unit state is unknown. Grey - unit not found. Green - unit found and can be marked. Red - unit found and can't be marked. Color checked every 5 seconds.  
+> This window is movable by *Shift* + left mouse button on the header.
 
 #Marking
 1. To mark the unit it is must be found first. And it is a great problem cause Blizzard API restrictions.  
