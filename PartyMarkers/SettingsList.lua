@@ -175,6 +175,15 @@ function PC.SettingsList:GetRow()
 			PC._settingsList.players:Popup(self:GetParent().index)
 		end
 	end)
+	edit:SetScript("OnEnterPressed", function(self) PC._settingsList:ClearFocus(); end)
+	edit:SetScript("OnEscapePressed", function(self) PC._settingsList:ClearFocus(); end)
+	edit:SetScript("OnTextChanged", function(self, userInput)
+		if userInput == true and IsControlKeyDown() then
+			local text = self:GetText()
+			text = text:gsub("^[ ]*%[[ ]*", "")
+			self:SetText(text:gsub("[ ]*%][ ]*$", ""))
+		end
+	end)
 
 	if not self.players then
 		self.players = CreateFrame("Frame", nil, PC._mainFrame)
