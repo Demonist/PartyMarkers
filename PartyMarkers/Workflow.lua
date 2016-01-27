@@ -14,6 +14,7 @@ function PC.Workflow:Create()
 
 	ret.autoMarkIndexes = {}	--autoMarNames["target"] = 5; 5 - индекс в buttons
 	ret.autoMarkNames = {}		--autoMarNames["target"] = true
+	ret.currentlyUsedMarks = {}	--currentlyUsedMarks[markerIndex] = true
 
 	ret.autoMarkCount = 0
 	ret.autoMarkElapsed = 0.0
@@ -349,11 +350,18 @@ function PC.Workflow:AutoMarkHelper(unitId)
 	local unitName = UnitName(unitId)
 	if unitName and self.autoMarkNames[unitName] then
 		local unitIconIndex = GetRaidTargetIndex(unitId)
-		if not unitIconIndex then SetRaidTargetIcon(unitId, self:GetIconIndex(unitName)); end
+		if not unitIconIndex then
+			local iconIndex = self:GetIconIndex(unitName)
+			if not self.currentlyUsedMarks[iconIndex] then
+				SetRaidTargetIcon(unitId, iconIndex)
+				self.currentlyUsedMarks[iconIndex] = true
+			end
+		end
 	end
 end
 
 function PC.Workflow:AutoMark()
+	self.currentlyUsedMarks = {}
 	self:AutoMarkHelper("target")
 
 	for name, _ in pairs(self.autoMarkNames) do
