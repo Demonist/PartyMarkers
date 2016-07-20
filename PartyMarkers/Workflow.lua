@@ -35,7 +35,7 @@ function PC.Workflow:CreateFrame(parentFrame)
 	
 	local texture = self.frame:CreateTexture()
 	texture:SetAllPoints()
-	texture:SetTexture(0.1, 0.1, 0.1, 1)
+	texture:SetColorTexture(0.1, 0.1, 0.1, 1)
 
 	local lockButton = CreateFrame("Button", nil, self.frame)
 	lockButton:Show()
@@ -143,7 +143,7 @@ function PC.Workflow:GetButton()
 
 	button.texture = button:CreateTexture()
 	button.texture:SetAllPoints()
-	button.texture:SetTexture(0.2, 0.2, 0.2, 1)
+	button.texture:SetColorTexture(0.2, 0.2, 0.2, 1)
 	button:SetHighlightTexture(button.texture)
 
 	button.check = CreateFrame("CheckButton", nil, self.scrollContainer, "OptionsBaseCheckButtonTemplate")

@@ -227,7 +227,7 @@ function PC.SettingsList:GetRow()
 
 				button.texture = button:CreateTexture()
 				button.texture:SetAllPoints()
-				button.texture:SetTexture(0.2, 0.2, 0.2, 1)
+				button.texture:SetColorTexture(0.2, 0.2, 0.2, 1)
 				button:SetHighlightTexture(button.texture)
 
 				button:SetScript("OnClick", function(self, button)

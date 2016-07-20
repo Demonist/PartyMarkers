@@ -117,7 +117,7 @@ function PC.Settings:CreateFrame()
 
 	self.frame.texture = self.frame:CreateTexture()
 	self.frame.texture:SetAllPoints()
-	self.frame.texture:SetTexture(0.1, 0.1, 0.1, 1)
+	self.frame.texture:SetColorTexture(0.1, 0.1, 0.1, 1)
 
 	--header:
 	local header = self.frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLeft")

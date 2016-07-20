@@ -82,7 +82,7 @@ local function CreateUi()
 	
 	local texture = mainFrame.header:CreateTexture()
 	texture:SetAllPoints()
-	texture:SetTexture(0.05, 0.05, 0.05, 1)
+	texture:SetColorTexture(0.05, 0.05, 0.05, 1)
 
 	mainFrame.header.title = mainFrame.header:CreateFontString(nil, "OVERLAY", "GameFontNormalLeft")
 	mainFrame.header.title:SetPoint("TOPLEFT", 5, -1)
